@@ -4,6 +4,8 @@ import axios from  "axios";
 import nProgress from "nprogress";
 //引入进度条颜色才能看
 import 'nprogress/nprogress.css'
+//引入store，使用uuid
+import store from '@/store'
 
 
 //1:利用axios对象的方法create，去创建一个axios实例
@@ -18,6 +20,13 @@ const requests = axios.create({
 //请求拦裁器:在发请求之前，请求拦裁器可以检测到，可以在请求发出去之前做一些事情
 requests.interceptors.request.use((config)=>{
     //config: 配置对象，对象里面有一个属性很重要，headers请求头returnconfig;
+    if(store.state.detail.uuid_token) {
+        config.headers.userTempId = store.state.detail.uuid_token
+    }
+    // 携带token带给服务器
+    if(store.state.register.token) {
+        config.headers.token = store.state.register.token 
+    }
     nProgress.start()
     return config
 })

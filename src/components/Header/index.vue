@@ -5,16 +5,20 @@
             <div class="container">
                 <div class="loginList">
                     <p>尚品汇欢迎您！</p>
-                    <p>
+                    <p v-if="!username">
                         <span>请</span>
                         <!--实现路由跳转-->
                         <router-link to='/login'>登录</router-link>
                         <router-link class="register" to='/register'>免费注册</router-link>
                     </p>
+                    <p v-else>
+                        <a>Admin</a>
+                        <a class="register"  @click="outregister">退出登录</a>
+                    </p>
                 </div>
                 <div class="typeList">
-                    <a href="###">我的订单</a>
-                    <a href="###">我的购物车</a>
+                    <router-link to="/center/myorder">我的订单</router-link>
+                    <router-link to="/shopcart">我的购物车</router-link>
                     <a href="###">我的尚品汇</a>
                     <a href="###">尚品汇会员</a>
                     <a href="###">企业采购</a>
@@ -33,12 +37,12 @@
             </h1>
             <div class="searchArea">
                 <form action="###" class="searchForm">
-                    <input type="text" id="autocomplete" class="input-error input-xxlarge" />
-                    <button class="sui-btn btn-xlarge btn-danger" type="button" @click="tosearch">搜索</button>
+                    <input type="text" id="autocomplete" class="input-error input-xxlarge" v-model="keyword" />
+                    <button class="sui-btn btn-xlarge btn-danger" type="button"  @click="tosearch" >搜索</button>
                 </form>
             </div>
         </div>
-        <router-view></router-view>
+      
     </header>
     
 </template>
@@ -47,18 +51,35 @@
 export default {
     data() {
         return {
-            
+            //要进行双向数据绑定，不然没数据
+            keyword:""
         }
+    },
+    //来自search组件的clear
+    mounted() {
+        this.$bus.$on('clear',()=> {
+            this.keyword = ''
+        })
     },
     methods:{
         tosearch() {
-            this.$router.push('/home')
+            if(this.$route.query) {
+                let location = {name:'search',params:{keyword:this.keyword || undefined}}
+                location.query = this.$route.query
+                this.$router.push(location)
+            }
+        },
+        outregister() {
+            this.$store.dispatch('outregister')
+        }
+    },
+    computed: {
+        username() {
+            return this.$store.state.register.userinfo.name
         }
     }
-  
 }
 </script>
-
 <style lang="less" scoped>
  .header {
         &>.top {
